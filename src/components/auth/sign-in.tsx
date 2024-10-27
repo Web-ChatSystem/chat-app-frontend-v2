@@ -11,7 +11,7 @@ import {
 import { isEmail, isNotEmpty, useForm } from "@mantine/form";
 import { useNavigate } from "react-router-dom";
 import { AuthShell } from "@/components/shell/auth-shell.tsx";
-import { CardStyles } from "./styles.tsx";
+import { CardStyles } from  "./styles.tsx";
 import { useSignIn } from "@/server/hooks/useSignIn.ts";
 
 type SignInForm = {

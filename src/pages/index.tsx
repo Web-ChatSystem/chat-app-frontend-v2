@@ -1,4 +1,4 @@
-import { Group, Title } from "@mantine/core";
+import { Group, Title }  from "@mantine/core";
 
 const Index = (): JSX.Element => {
   return (

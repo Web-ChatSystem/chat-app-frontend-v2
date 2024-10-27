@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { CardStyles } from "@/components/auth/styles.tsx";
 import { RegisterRequest, useRegister } from "@/server/hooks/useRegister.ts";
-import { notifications } from "@mantine/notifications";
+import { notifications } from  "@mantine/notifications";
 import { DateInput } from "@mantine/dates";
 
 type FormValues = RegisterRequest & {
