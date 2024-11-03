@@ -5,22 +5,22 @@ import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import { Notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import setupAxiosDefault from "@/provider/setupAxios.ts";
-import SignIn from "@/pages/sign-in"; // Đảm bảo import SignIn đúng vị trí
-import SignUp from "@/pages/sign-up"; // Đảm bảo import SignUp đúng vị trí
+import SignIn from "@/pages/sign-in"; 
+import SignUp from "@/pages/sign-up"; 
 
 setupAxiosDefault();
 
 const router = createBrowserRouter([
   {
     path: "/sign-in",
-    element: <SignIn />, // Hiển thị trang đăng nhập
+    element: <SignIn />, 
   },
   {
     path: "/sign-up",
-    element: <SignUp />, // Hiển thị trang đăng ký
+    element: <SignUp />, 
   },
   {
-    path: "*", // Nếu không khớp với route nào, chuyển hướng đến trang đăng nhập
+    path: "*", 
     element: <Navigate to="/sign-in" />,
   },
 ]);
