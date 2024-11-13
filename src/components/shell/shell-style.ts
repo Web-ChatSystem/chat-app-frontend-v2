@@ -7,5 +7,5 @@ export const appShellStyles: Required<AppShellProps>["styles"] = (theme) => {
       background: colorScheme === "dark" ? colors.dark[8] : colors.gray[0],
       overflowX: "hidden",
     },
-  };
+  }; 
 };

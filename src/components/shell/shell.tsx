@@ -8,7 +8,7 @@ import { appShellStyles } from "@/components/shell/shell-style.ts";
 interface Props {
   children: ReactNode;
 }
-
+ 
 export const Shell = (props: Props): JSX.Element => {
   const { children } = props;
   const [nav, toggleNav] = useToggle();

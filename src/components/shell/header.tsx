@@ -7,7 +7,7 @@ interface Props {
 
 export const ShellHeader = (props: Props): JSX.Element => {
   const { nav, toggleNav } = props;
-
+ 
   return (
     <MediaQuery largerThan="sm" styles={{ display: "none" }}>
       <Header height={{ base: 70, sm: 0 }} p="md">

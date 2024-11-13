@@ -5,7 +5,7 @@ import { appShellStyles } from "./shell-style.ts";
 
 interface Props {
   children: ReactNode;
-}
+} 
 
 export const AuthShell = (props: Props): JSX.Element => {
   const { children } = props;

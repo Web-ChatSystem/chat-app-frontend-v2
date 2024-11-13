@@ -19,8 +19,10 @@ import {
 } from "@tabler/icons-react";
 import { TabStyles } from "@/components/shell/styles.tsx";
 import { useState } from "react";
-
-
+import { ContactList } from "@/components/contacts/list.tsx";
+import { useGetMe } from "@/server/hooks/useGetMe.ts";
+import { Loader } from "@/components/loader";
+import { ConversationList } from "@/components/conversations/list.tsx";
 
 interface Props {
   hidden: Required<NavbarProps>["hidden"];
@@ -30,7 +32,7 @@ export const ShellNav = (props: Props): JSX.Element => {
   const { hidden } = props;
   const [activeTab, setActiveTab] = useState<string | null>("inbox");
   const [openRequestModal, setOpenRequestModal] = useState<boolean>(false);
-
+  const self = useGetMe();
 
   return (
     <Navbar width={{ sm: 400 }} hidden={hidden} hiddenBreakpoint="sm" p="lg">
@@ -94,7 +96,20 @@ export const ShellNav = (props: Props): JSX.Element => {
           </Tabs>
         </Stack>
       </Navbar.Section>
-      
+      <Navbar.Section grow>
+        {self.isError && <div>Error</div>}
+        {self.isLoading && <Loader />}
+        {self.isSuccess && (
+          <Stack>
+            {activeTab === "inbox" && (
+              <ConversationList userID={self.data.userId} />
+            )}
+            {activeTab === "contacts" && (
+              <ContactList userID={self.data.userId} />
+            )}
+          </Stack>
+        )}
+      </Navbar.Section>
       <Navbar.Section>
         <ShellFooter />
       </Navbar.Section>
@@ -104,7 +119,7 @@ export const ShellNav = (props: Props): JSX.Element => {
         title="Find new friends"
         size="lg"
       >
-       
+        
       </Modal>
     </Navbar>
   );

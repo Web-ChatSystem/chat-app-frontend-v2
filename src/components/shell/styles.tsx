@@ -7,7 +7,7 @@ export const TabStyles: Required<TabProps["styles"]> = (
     ...theme.fn.focusStyles(),
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
-    color:
+    color: 
       theme.colorScheme === "dark"
         ? theme.colors.dark[0]
         : theme.colors.gray[9],
