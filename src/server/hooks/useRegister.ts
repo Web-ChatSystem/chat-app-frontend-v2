@@ -1,4 +1,4 @@
-import { useMutation }  from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AUTH_API } from "@/server/apis";
 import { instanceCoreApi } from "@/provider/setupAxios.ts";
 

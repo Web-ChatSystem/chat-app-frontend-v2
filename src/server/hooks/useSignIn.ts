@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { instanceCoreApi } from "@/provider/setupAxios.ts";
-import { AUTH_API }  from "@/server/apis";
+import { AUTH_API } from "@/server/apis";
 
 type SignInRequest = {
   email: string;
