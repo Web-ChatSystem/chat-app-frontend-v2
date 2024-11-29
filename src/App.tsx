@@ -1,29 +1,86 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ColorSchemeProvider } from "@/provider/color-scheme/provider.tsx";
 import { ThemeProvider } from "@/components/theme/provider.tsx";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  ActionFunction,
+  createBrowserRouter,
+  LoaderFunction,
+  RouterProvider,
+} from "react-router-dom";
 import { Notifications } from "@mantine/notifications";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
+import { Shell } from "@/components/shell/shell.tsx";
 import setupAxiosDefault from "@/provider/setupAxios.ts";
-import SignIn from "@/pages/sign-in"; 
-import SignUp from "@/pages/sign-up"; 
 
 setupAxiosDefault();
+interface ElementProp {
+  (): JSX.Element;
+  Layout?: (props: { children: ReactNode }) => JSX.Element;
+}
+interface IRoute {
+  path: string;
+  Element: ElementProp;
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  ErrorBoundary?: ElementProp;
+}
+interface Page {
+  default: ElementProp;
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  ErrorBoundary?: ElementProp;
+}
 
-const router = createBrowserRouter([
-  {
-    path: "/sign-in",
-    element: <SignIn />, 
-  },
-  {
-    path: "/sign-up",
-    element: <SignUp />, 
-  },
-  {
-    path: "*", 
-    element: <Navigate to="/sign-in" />,
-  },
-]);
+const pages: Record<string, Page> = import.meta.glob("./pages/**/*.tsx", {
+  eager: true,
+});
+
+const routes: IRoute[] = [];
+for (const path of Object.keys(pages)) {
+  const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1];
+
+  if (!fileName) {
+    continue;
+  }
+
+  const normalizedPathName = fileName.includes("$")
+    ? fileName.replace("$", ":")
+    : fileName.replace(/\/index/, "");
+
+  const fallbackElement: ElementProp = () => <></>;
+  fallbackElement.Layout = (props) => <>{props.children}</>;
+
+  const route: IRoute = {
+    path: fileName === "index" ? "/" : `/${normalizedPathName.toLowerCase()}`,
+    Element: pages[path]?.default || fallbackElement,
+  };
+
+  const pageLoader = pages[path]?.loader;
+  if (pageLoader) route.loader = pageLoader;
+
+  const pageAction = pages[path]?.action;
+  if (pageAction) route.action = pageAction;
+
+  const pageErrorBoundary = pages[path]?.ErrorBoundary;
+  if (pageErrorBoundary) route.ErrorBoundary = pageErrorBoundary;
+
+  routes.push(route);
+}
+
+const router = createBrowserRouter(
+  routes.map(({ Element, ErrorBoundary, ...rest }) => {
+    const Layout = Element.Layout ?? Shell;
+    return {
+      ...rest,
+      element: (
+        <Layout>
+          <Element />
+        </Layout>
+      ),
+      ...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
+    };
+  }),
+);
 
 function App() {
   const queryClient = new QueryClient({
@@ -51,10 +108,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ColorSchemeProvider>
+        {/*<SocketProvider>*/}
         <ThemeProvider>
           <Notifications position="top-right" />
           <RouterProvider router={router} />
         </ThemeProvider>
+        {/*</SocketProvider>*/}
       </ColorSchemeProvider>
     </QueryClientProvider>
   );

@@ -18,7 +18,7 @@ import {
   IconAlphabetLatin,
   IconTrashFilled,
 } from "@tabler/icons-react";
-
+import { UpsertNickname } from "../nicknames/upsert";
 
 export const MessageHeader = (props: {
   conversationDetail: ConversationItem;
@@ -99,7 +99,13 @@ export const MessageHeader = (props: {
         }
         size="auto"
       >
-        
+        <UpsertNickname
+          nickname={friend.nickname ? friend.nickname : ""}
+          userID={friend.id}
+          conversationID={conversationDetail.id}
+          onCancel={toggleSetNicknameModal}
+          onSuccess={toggleSetNicknameModal}
+        />
       </Modal>
     </Card>
   );

@@ -22,6 +22,7 @@ import { useState } from "react";
 import { ContactList } from "@/components/contacts/list.tsx";
 import { useGetMe } from "@/server/hooks/useGetMe.ts";
 import { Loader } from "@/components/loader";
+import { FriendRequests } from "@/components/friend-requests";
 import { ConversationList } from "@/components/conversations/list.tsx";
 
 interface Props {
@@ -119,7 +120,7 @@ export const ShellNav = (props: Props): JSX.Element => {
         title="Find new friends"
         size="lg"
       >
-        
+        {self.isSuccess && <FriendRequests userID={self.data.userId} />}
       </Modal>
     </Navbar>
   );

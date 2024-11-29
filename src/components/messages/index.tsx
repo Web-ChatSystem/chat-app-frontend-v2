@@ -3,6 +3,7 @@ import { MessageHeader } from "@/components/messages/header.tsx";
 import { Loader } from "@/components/loader";
 import { useGetMe } from "@/server/hooks/useGetMe.ts";
 import { useGetConversation } from "@/server/hooks/useGetConversation.ts";
+import { MessageEditor } from "../editor";
 import { useForm } from "@mantine/form";
 import { IconSend } from "@tabler/icons-react";
 import { MessageList } from "@/components/messages/list.tsx";
@@ -48,7 +49,7 @@ export const Message = (props: { conversationID: string }) => {
             <form onSubmit={form.onSubmit(onSubmit)}>
               <Grid gutter={0} align="center" columns={24}>
                 <Grid.Col span={23}>
-                  
+                  <MessageEditor form={form} />
                 </Grid.Col>
                 <Grid.Col span={1}>
                   <Group position="right">

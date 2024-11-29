@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { CardStyles } from "@/components/auth/styles.tsx";
 import { RegisterRequest, useRegister } from "@/server/hooks/useRegister.ts";
-import { notifications } from  "@mantine/notifications";
+import { notifications } from "@mantine/notifications";
 import { DateInput } from "@mantine/dates";
 
 type FormValues = RegisterRequest & {
@@ -71,87 +71,73 @@ export const SignUp = (): JSX.Element => {
   };
 
   return (
-    <div style={{display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center"}}>
-      <Card radius="xl" withBorder padding="lg" shadow="lg" sx={CardStyles}>
-        <form onSubmit={form.onSubmit(submit)}>
-          <Stack>
-            <Title>Sign up with us!</Title>
-            <TextInput
-              label="Email"
-              placeholder="test@example.com"
-              required
-              {...form.getInputProps("email")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <PasswordInput
-              label="Password"
-              required
-              {...form.getInputProps("password")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <PasswordInput
-              label="Confirm Password"
-              required
-              {...form.getInputProps("confirmPassword")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <TextInput
-              label="Name" 
-              required 
-              {...form.getInputProps("name")} 
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <TextInput
-              label="Username"
-              required
-              {...form.getInputProps("username")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <DateInput
-              label="Date of birth"
-              required
-              maxDate={new Date()}
-              {...form.getInputProps("dob")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <Select
-              data={[
-                { label: "Male", value: "male" },
-                { label: "Female", value: "female" },
-                { label: "Other", value: "other" },
-              ]}
-              label={"Gender"}
-              required
-              {...form.getInputProps("gender")}
-              style={{margin: "0 0 -10px 0"}}
-            />
-            <Text color="dimmed">
-              By signing up, you agree to the Terms and Conditions and Privacy
-              Policy.
-            </Text>
-            <Button
-              loading={signUp.isLoading}
-              radius="xl"
-              type="submit"
-              variant="filled"
+    <Card radius="xl" withBorder padding="lg" shadow="lg" sx={CardStyles}>
+      <form onSubmit={form.onSubmit(submit)}>
+        <Stack>
+          <Title>Sign up with us!</Title>
+          <TextInput
+            label="Email"
+            placeholder="test@example.com"
+            required
+            {...form.getInputProps("email")}
+          />
+          <PasswordInput
+            label="Password"
+            required
+            {...form.getInputProps("password")}
+          />
+          <PasswordInput
+            label="Confirm Password"
+            required
+            {...form.getInputProps("confirmPassword")}
+          />
+          <TextInput label="Name" required {...form.getInputProps("name")} />
+          <TextInput
+            label="Username"
+            required
+            {...form.getInputProps("username")}
+          />
+          <DateInput
+            label="Date of birth"
+            required
+            maxDate={new Date()}
+            {...form.getInputProps("dob")}
+          />
+          <Select
+            data={[
+              { label: "Male", value: "male" },
+              { label: "Female", value: "female" },
+              { label: "Other", value: "other" },
+            ]}
+            label={"Gender"}
+            required
+            {...form.getInputProps("gender")}
+          />
+          <Text color="dimmed">
+            By signing up, you agree to the Terms and Conditions and Privacy
+            Policy.
+          </Text>
+          <Button
+            loading={signUp.isLoading}
+            radius="xl"
+            type="submit"
+            variant="filled"
+          >
+            Sign Up
+          </Button>
+          <Text color="dimmed">
+            Already have an account?{" "}
+            <Anchor
+              variant="link"
+              color="blue"
+              onClick={() => navigate("/sign-in")}
             >
-              Sign Up
-            </Button>
-            <Text color="dimmed">
-              Already have an account?{" "}
-              <Anchor
-                variant="link"
-                color="blue"
-                onClick={() => navigate("/sign-in")}
-              >
-                Sign In
-              </Anchor>
-            </Text>
-          </Stack>
-        </form>
-      </Card>
-    </div>
-    
+              Sign In
+            </Anchor>
+          </Text>
+        </Stack>
+      </form>
+    </Card>
   );
 };
 
