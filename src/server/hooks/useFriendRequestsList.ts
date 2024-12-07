@@ -6,7 +6,7 @@ export const useFriendRequestsList = () => {
   return useQuery({
     queryKey: ["get-friend-requests-list"],
     queryFn: async () => {
-      await instanceCoreApi.get(RELATIONSHIP_API.LIST_FRIEND_REQUEST);
+      await instanceCoreApi.get(RELATIONSHIP_API.LIST_FRIEND);
     },
   });
 };

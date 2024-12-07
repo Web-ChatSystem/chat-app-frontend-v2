@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthShell } from "@/components/shell/auth-shell.tsx";
 import { CardStyles } from "./styles.tsx";
 import { useSignIn } from "@/server/hooks/useSignIn.ts";
+import { useState } from "react";
 
 type SignInForm = {
   email: string;
@@ -29,12 +30,27 @@ export const SignIn = (): JSX.Element => {
       password: isNotEmpty("Invalid password"),
     },
   });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Trạng thái lưu thông báo lỗi
 
   const submit = async (values: SignInForm) => {
+    setErrorMessage(null); // Reset lỗi trước khi gửi request
     signIn.mutate(values, {
       onSuccess: (data) => {
         localStorage.setItem("token", data.data.token);
         navigate("/");
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        // Kiểm tra lỗi trả về từ server
+        if (error.response?.status === 403) {
+          setErrorMessage("Email or password is not correct");
+        } else if (error.response?.status === 400) {
+          setErrorMessage(
+            "Password must be longer than or equal to 8 characters",
+          );
+        } else {
+          setErrorMessage("An unexpected error occurred");
+        }
       },
     });
   };
@@ -55,6 +71,11 @@ export const SignIn = (): JSX.Element => {
             withAsterisk
             {...form.getInputProps("password")}
           />
+          {errorMessage && (
+            <Text color="red" size="sm">
+              {errorMessage}
+            </Text>
+          )}
           <Button
             radius="xl"
             type="submit"

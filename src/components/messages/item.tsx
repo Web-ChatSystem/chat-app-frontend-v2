@@ -1,7 +1,7 @@
 import { Message } from "@/components/messages/list.tsx";
-import { Avatar, Group, Paper, Stack } from "@mantine/core";
+import { Avatar, Group, Paper, Stack, Text } from "@mantine/core";
 import { forwardRef, Ref } from "react";
-
+import dayjs from "dayjs";
 const MessageItem = (
   props: {
     message: Message;
@@ -10,9 +10,27 @@ const MessageItem = (
   ref: Ref<HTMLDivElement>,
 ) => {
   const { message, isUser } = props;
+  const formatMessageTime = (createdAt: string) => {
+    const messageDate = dayjs(createdAt);
+    const today = dayjs();
+
+    if (messageDate.isSame(today, "day")) {
+      return `Hôm nay - ${messageDate.format("HH:mm")}`;
+    } else {
+      return messageDate.format("DD/MM/YYYY - HH:mm");
+    }
+  };
+
+  const formattedTime = formatMessageTime(message.createdAt);
+
   if (ref) console.log(message);
   return (
     <Stack p="xs" align={isUser ? "flex-end" : "flex-start"} ref={ref}>
+      {!isUser && (
+        <Text size="sm" color="dimmed" ml={75} mb={-10}>
+          {message.owner.username}
+        </Text>
+      )}
       <Group>
         {!isUser && (
           <Avatar
@@ -42,6 +60,15 @@ const MessageItem = (
             }}
             dangerouslySetInnerHTML={{ __html: message.body }}
           />
+          <Text
+            size="xs"
+            color={isUser ? "white" : "dimmed"}
+            mt={4}
+            align={"left"}
+            style={{ width: "100%" }}
+          >
+            {formattedTime}
+          </Text>
         </Paper>
       </Group>
     </Stack>

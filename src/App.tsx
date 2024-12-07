@@ -11,6 +11,8 @@ import { Notifications } from "@mantine/notifications";
 import { ReactNode, useEffect } from "react";
 import { Shell } from "@/components/shell/shell.tsx";
 import setupAxiosDefault from "@/provider/setupAxios.ts";
+import { SocketProvider } from "./provider/socketProvider";
+import VideoCallPage from "./pages/videocalls/$id";
 
 setupAxiosDefault();
 interface ElementProp {
@@ -38,7 +40,6 @@ const pages: Record<string, Page> = import.meta.glob("./pages/**/*.tsx", {
 const routes: IRoute[] = [];
 for (const path of Object.keys(pages)) {
   const fileName = path.match(/\.\/pages\/(.*)\.tsx$/)?.[1];
-
   if (!fileName) {
     continue;
   }
@@ -70,6 +71,12 @@ for (const path of Object.keys(pages)) {
 const router = createBrowserRouter(
   routes.map(({ Element, ErrorBoundary, ...rest }) => {
     const Layout = Element.Layout ?? Shell;
+    if (rest.path === "/videocalls/:id")
+      return {
+        ...rest,
+        element: <VideoCallPage />,
+        ...(ErrorBoundary && { errorElement: <ErrorBoundary /> }),
+      };
     return {
       ...rest,
       element: (
@@ -108,12 +115,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ColorSchemeProvider>
-        {/*<SocketProvider>*/}
-        <ThemeProvider>
-          <Notifications position="top-right" />
-          <RouterProvider router={router} />
-        </ThemeProvider>
-        {/*</SocketProvider>*/}
+        <SocketProvider>
+          <ThemeProvider>
+            <Notifications position="top-right" />
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </SocketProvider>
       </ColorSchemeProvider>
     </QueryClientProvider>
   );

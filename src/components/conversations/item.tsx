@@ -41,6 +41,8 @@ export const ConversationItem = (props: { conversation: ConversationItem }) => {
 
   if (!friend) return null;
 
+  const isIndividual = conversation.type === "individual";
+
   return (
     <Card p={0} component={Link} to={`/messages/${conversation.id}`}>
       <Box
@@ -60,12 +62,14 @@ export const ConversationItem = (props: { conversation: ConversationItem }) => {
             <Avatar
               size="lg"
               radius="xl"
-              src={friend.avatar}
-              alt={friend.username}
+              src={isIndividual ? friend?.avatar : conversation.image}
+              alt={isIndividual ? friend?.username : conversation.name}
             />
             <Stack>
               <Text fw={600}>
-                {friend.nickname ? friend.nickname : friend.username}
+                {isIndividual
+                  ? friend?.nickname || friend?.username
+                  : conversation.name}
               </Text>
             </Stack>
           </Group>

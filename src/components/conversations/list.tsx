@@ -6,7 +6,7 @@ import { useListConversation } from "@/server/hooks/useListConversation.ts";
 export const ConversationList = (props: { userID: string }) => {
   const { userID } = props;
   const conversations = useListConversation({ userID });
-
+  console.log("CAC DOAN HOI THOAI", conversations?.data?.items);
   return (
     <Stack>
       {conversations.isError && <div>error</div>}
