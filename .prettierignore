@@ -1,0 +1,14 @@
+# Ignore artifacts:
+build
+coverage
+
+# Ignore all HTML files:
+**/*.html
+
+out/
+dist/
+test-fixtures/
+node_modules/
+
+# Ignore jetbrains IDE files
+.idea/
