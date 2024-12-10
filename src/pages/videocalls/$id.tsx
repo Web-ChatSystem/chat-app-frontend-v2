@@ -25,14 +25,13 @@ export default function VideoCallPage(): JSX.Element {
   const { id } = useParams();
   const socket = useSocket();
   const self = useGetMe();
-  //const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
-  //const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
+  const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
+  const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
   const [callEnded, setCallEnded] = useState(false);
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
-  const isVideoOn = true;
-  const isMicOn = true;
+
   useChatConnection(localVideoRef, remoteVideoRef);
   useEffect(() => {
     if (id && self?.data?.username) {
@@ -61,11 +60,10 @@ export default function VideoCallPage(): JSX.Element {
   };
 
   // Toggle video
-  /*const toggleVideo = () => {
-    if (localStream) {
-      const videoTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === "video");
+  const toggleVideo = () => {
+    const videoElement = localVideoRef.current;
+    if (videoElement && videoElement.srcObject instanceof MediaStream) {
+      const videoTrack = videoElement.srcObject.getTracks().find((track) => track.kind === "video");
       if (videoTrack) {
         videoTrack.enabled = !isVideoOn;
         setIsVideoOn(!isVideoOn);
@@ -75,16 +73,15 @@ export default function VideoCallPage(): JSX.Element {
 
   // Toggle microphone
   const toggleMic = () => {
-    if (localStream) {
-      const audioTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === "audio");
+    const videoElement = localVideoRef.current;
+    if (videoElement && videoElement.srcObject instanceof MediaStream) {
+      const audioTrack = videoElement.srcObject.getTracks().find((track) => track.kind === "audio");
       if (audioTrack) {
         audioTrack.enabled = !isMicOn;
         setIsMicOn(!isMicOn);
       }
     }
-  };*/
+  };
   if (!id) {
     return <>No id</>;
   }
@@ -107,7 +104,7 @@ export default function VideoCallPage(): JSX.Element {
       </Paper>
     );
   }
-
+  console.log("remove", remoteVideoRef);
   return (
     <Paper
       p={0}
@@ -122,28 +119,22 @@ export default function VideoCallPage(): JSX.Element {
       {/* Header */}
       <Group position="apart" p="md">
         <Group>
-          <Title order={4} color="white">
-            Thắng, Khánh
-          </Title>
+
         </Group>
-        <ActionIcon variant="subtle" color="gray">
-          <IconPhone size={18} />
-        </ActionIcon>
       </Group>
 
       {/* Main Content - Video/Avatar */}
       <Grid style={{ height: "calc(100vh - 160px)" }}>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
-
-            <VideoFeed ref={localVideoRef} isMuted={true} />
+            <VideoFeed ref={localVideoRef} />
 
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
 
-            <VideoFeed ref={remoteVideoRef} isMuted={true} />
+            <VideoFeed ref={remoteVideoRef} />
 
           </Stack>
         </Grid.Col>
@@ -160,7 +151,7 @@ export default function VideoCallPage(): JSX.Element {
           radius="xl"
           variant="filled"
           color="dark.4"
-        //onClick={toggleVideo}
+          onClick={toggleVideo}
         >
           {isVideoOn ? <IconVideo size={24} /> : <IconVideoOff size={24} />}
         </ActionIcon>
@@ -169,7 +160,7 @@ export default function VideoCallPage(): JSX.Element {
           radius="xl"
           variant="filled"
           color="dark.4"
-        //onClick={toggleMic}
+          onClick={toggleMic}
         >
           {isMicOn ? (
             <IconMicrophone size={24} />
