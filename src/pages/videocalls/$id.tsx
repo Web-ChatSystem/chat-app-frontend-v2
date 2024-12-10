@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { JSX, useEffect, useRef, useState } from "react";
 import {
   ActionIcon,
-  Avatar,
   Grid,
   Group,
   Paper,
@@ -26,12 +25,14 @@ export default function VideoCallPage(): JSX.Element {
   const { id } = useParams();
   const socket = useSocket();
   const self = useGetMe();
-  const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
-  const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
+  //const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
+  //const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
   const [callEnded, setCallEnded] = useState(false);
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const isVideoOn = true;
+  const isMicOn = true;
   useChatConnection(localVideoRef, remoteVideoRef);
   useEffect(() => {
     if (id && self?.data?.username) {

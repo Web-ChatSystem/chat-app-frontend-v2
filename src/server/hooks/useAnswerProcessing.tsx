@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import Peer from 'simple-peer/simplepeer.min.js'
+import Peer from 'simple-peer';
 export function useAnswerProcessing(peerRef: React.MutableRefObject<Peer.Instance | undefined>) {
 
   const handleOfferAnswer = useCallback(
