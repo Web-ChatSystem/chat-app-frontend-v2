@@ -14,6 +14,7 @@ export const useUpdateUser = (id: string) => {
   return useMutation({
     mutationKey: ["update-user", id],
     mutationFn: async (data: UpdateUserRequest) => {
+      console.log("thong tin duoc cap nhat", data);
       await instanceCoreApi.patch(USER_API.UPDATE.replace(":id", id), data);
     },
   });

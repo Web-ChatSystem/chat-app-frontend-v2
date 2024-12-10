@@ -30,6 +30,7 @@ import { useListFriends } from "@/server/hooks/useListFriends";
 import { Friend } from "../contacts/item";
 import { useCreateConversation } from "@/server/hooks/useCreateConversation";
 import { useGetUserDetail } from "@/server/hooks/useGetUserDetail";
+import { useUpdateUser } from "@/server/hooks/useUpdateUser";
 
 interface Props {
   hidden: Required<NavbarProps>["hidden"];
@@ -51,42 +52,47 @@ export const ShellNav = (props: Props): JSX.Element => {
     avatar: "",
     email: "",
     username: "",
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
   });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
-      alert("Mật khẩu mới và xác nhận không khớp!");
-      return;
-    }
 
+  const self = useGetMe();
+  const realname = useGetUserDetail(self?.data?.userId);
+  const updateUser = useUpdateUser(self?.data?.userId || "");
+  //console.log("realname", realname.data);
+  const handleSubmit = () => {
+    const { name, avatar } = formData;
     // Thực hiện API call để cập nhật thông tin người dùng
     console.log("Submitting form data:", formData);
-
+    updateUser.mutate(
+      { name, avatar, dob: realname?.data?.dob, gender: realname?.data?.gender },
+      {
+        onSuccess: () => {
+          console.log("Cập nhật thành công!");
+          setOpenSettingsModal(false);
+        },
+        onError: (error) => {
+          console.error("Lỗi cập nhật:", error);
+        },
+      }
+    );
     // Sau khi cập nhật thành công, đóng modal
     setOpenSettingsModal(false);
   };
-  const self = useGetMe();
-  const realname = useGetUserDetail(self?.data?.userId);
+
   useEffect(() => {
-    if (self.isSuccess) {
+    if (self.isSuccess && !formData.name) {
       setFormData({
         name: realname?.data?.name || "",
         avatar: self.data.avatar || "",
         email: self.data.email || "",
         username: self.data.username || "",
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
       });
     }
-  }, [self]);
+  }, [formData.name, realname?.data?.name, self]);
   console.log(self?.data?.userId);
   const friendQuery = useListFriends({ userID: self?.data?.userId });
   const friendsList = friendQuery.data?.items;
@@ -339,21 +345,6 @@ export const ShellNav = (props: Props): JSX.Element => {
               label="Username"
               value={formData.username}
               readOnly
-            />
-            <PasswordInput
-              label="Mật khẩu cũ"
-              value={formData.oldPassword}
-              onChange={(e) => handleInputChange("oldPassword", e.target.value)}
-            />
-            <PasswordInput
-              label="Mật khẩu mới"
-              value={formData.newPassword}
-              onChange={(e) => handleInputChange("newPassword", e.target.value)}
-            />
-            <PasswordInput
-              label="Xác nhận mật khẩu mới"
-              value={formData.confirmPassword}
-              onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
             />
             <Group position="right">
               <Button color="blue" onClick={handleSubmit}>
