@@ -21,12 +21,19 @@ export const Message = (props: { conversationID: string }) => {
   });
 
   const onSubmit = (values: { message: string }) => {
-    createMessage.mutate({
-      conversationID,
-      body: values.message,
-      ownerID: self.data.userId,
-    });
-    form.reset();
+    createMessage.mutate(
+      {
+        conversationID,
+        body: values.message,
+        ownerID: self.data.userId,
+      },
+      {
+        onSuccess: () => {
+          console.log("form da reset");
+          form.reset();
+        },
+      },
+    );
   };
 
   return (

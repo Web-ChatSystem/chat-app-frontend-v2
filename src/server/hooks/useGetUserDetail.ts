@@ -6,7 +6,10 @@ export const useGetUserDetail = (id: string) => {
   return useQuery({
     queryKey: ["get-user-detail", id],
     queryFn: async () => {
-      await instanceCoreApi.get(USER_API.GET_USER.replace(":id", id));
+      const response = await instanceCoreApi.get(
+        USER_API.GET_USER.replace(":id", id),
+      );
+      return response.data; // Trả về dữ liệu từ API
     },
   });
 };

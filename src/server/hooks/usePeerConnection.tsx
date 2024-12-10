@@ -18,7 +18,31 @@ export function usePeerConnection(localStream: MediaStream | null) {
 
     // Tạo kết nối mới
     const connection = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun2.1.google.com:19302" }],
+      iceServers: [
+        {
+          urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "51200850a53768a3f5ac0cf0",
+          credential: "aEHI+K2LsLXavRNd",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "51200850a53768a3f5ac0cf0",
+          credential: "aEHI+K2LsLXavRNd",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:443",
+          username: "51200850a53768a3f5ac0cf0",
+          credential: "aEHI+K2LsLXavRNd",
+        },
+        {
+          urls: "turns:global.relay.metered.ca:443?transport=tcp",
+          username: "51200850a53768a3f5ac0cf0",
+          credential: "aEHI+K2LsLXavRNd",
+        },
+      ],
     });
 
     connection.addEventListener("track", ({ streams }) => {

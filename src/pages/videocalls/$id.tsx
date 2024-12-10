@@ -1,8 +1,7 @@
 import { useParams } from "react-router-dom";
-import { JSX, useEffect, useState } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import {
   ActionIcon,
-  Avatar,
   Grid,
   Group,
   Paper,
@@ -19,8 +18,6 @@ import {
 import { useSocket } from "@/provider/socketProvider";
 import { SOCKET_EVENTS } from "@/utils/constant";
 import { useChatConnection } from "@/server/hooks/useChatConnection";
-import { usePeerConnection } from "@/server/hooks/usePeerConnection";
-import { useLocalCameraStream } from "@/server/hooks/useLocalCameraStream";
 import { VideoFeed } from "@/components/videocalls/VideoFeed";
 import { useGetMe } from "@/server/hooks/useGetMe";
 
@@ -30,28 +27,26 @@ export default function VideoCallPage(): JSX.Element {
   const self = useGetMe();
   const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
   const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
-
   const [callEnded, setCallEnded] = useState(false);
-  const { localStream } = useLocalCameraStream();
-  const { peerConnection, guestStream, cleanupConnection } =
-    usePeerConnection(localStream);
 
-  useChatConnection(peerConnection);
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  useChatConnection(localVideoRef, remoteVideoRef);
   useEffect(() => {
     if (id && self?.data?.username) {
       socket?.emit(SOCKET_EVENTS.CLIENT.JOIN_ROOM, {
         roomName: id,
-        userName: self.data.username,
+        userName: self?.data?.username,
       });
       socket?.on(SOCKET_EVENTS.SERVER.CALL_ENDED, () => {
         setCallEnded(true);
-        cleanupConnection();
       });
     }
     return () => {
       socket?.off(SOCKET_EVENTS.SERVER.CALL_ENDED);
     };
-  }, [cleanupConnection, id, self?.data?.username, socket]);
+  }, [id, self?.data?.username, socket]);
 
   const hangup = () => {
     if (socket) {
@@ -61,15 +56,14 @@ export default function VideoCallPage(): JSX.Element {
           userName: self.data.username,
         });
     }
-    cleanupConnection();
     window.close();
   };
+
   // Toggle video
   const toggleVideo = () => {
-    if (localStream) {
-      const videoTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === "video");
+    const videoElement = localVideoRef.current;
+    if (videoElement && videoElement.srcObject instanceof MediaStream) {
+      const videoTrack = videoElement.srcObject.getTracks().find((track) => track.kind === "video");
       if (videoTrack) {
         videoTrack.enabled = !isVideoOn;
         setIsVideoOn(!isVideoOn);
@@ -79,18 +73,15 @@ export default function VideoCallPage(): JSX.Element {
 
   // Toggle microphone
   const toggleMic = () => {
-    if (localStream) {
-      const audioTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === "audio");
+    const videoElement = localVideoRef.current;
+    if (videoElement && videoElement.srcObject instanceof MediaStream) {
+      const audioTrack = videoElement.srcObject.getTracks().find((track) => track.kind === "audio");
       if (audioTrack) {
         audioTrack.enabled = !isMicOn;
         setIsMicOn(!isMicOn);
       }
     }
   };
-
-  console.log("GuestStream", guestStream);
   if (!id) {
     return <>No id</>;
   }
@@ -113,7 +104,7 @@ export default function VideoCallPage(): JSX.Element {
       </Paper>
     );
   }
-
+  console.log("remove", remoteVideoRef);
   return (
     <Paper
       p={0}
@@ -128,41 +119,23 @@ export default function VideoCallPage(): JSX.Element {
       {/* Header */}
       <Group position="apart" p="md">
         <Group>
-          <Title order={4} color="white">
-            Thắng, Khánh
-          </Title>
+
         </Group>
-        <ActionIcon variant="subtle" color="gray">
-          <IconPhone size={18} />
-        </ActionIcon>
       </Group>
 
       {/* Main Content - Video/Avatar */}
       <Grid style={{ height: "calc(100vh - 160px)" }}>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
-            {localStream ? (
-              <VideoFeed mediaStream={localStream} isMuted={true} />
-            ) : (
-              <Avatar
-                size={120}
-                radius="50%"
-                src="/placeholder.svg?height=120&width=120"
-              />
-            )}
+            <VideoFeed ref={localVideoRef} />
+
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
-            {guestStream ? (
-              <VideoFeed mediaStream={guestStream} isMuted={true} />
-            ) : (
-              <Avatar
-                size={120}
-                radius="50%"
-                src="/placeholder.svg?height=120&width=120"
-              />
-            )}
+
+            <VideoFeed ref={remoteVideoRef} />
+
           </Stack>
         </Grid.Col>
       </Grid>

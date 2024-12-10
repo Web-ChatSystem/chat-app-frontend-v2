@@ -1,39 +1,35 @@
 import { useParams } from "react-router-dom";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSocket } from "@/provider/socketProvider.tsx";
 import { useOfferSending } from "./useOfferSending";
 import { SOCKET_EVENTS } from "@/utils/constant";
 import { useSendingAnswer } from "./useSendingAnswer";
 import { useGetMe } from "./useGetMe";
 import { useAnswerProcessing } from "./useAnswerProcessing";
+import Peer from 'simple-peer';
 
-export function useChatConnection(peerConnection: RTCPeerConnection) {
+
+export function useChatConnection(localVideoRef: React.MutableRefObject<HTMLVideoElement | null>, remoteVideoRef: React.MutableRefObject<HTMLVideoElement | null>) {
   const socket = useSocket();
   const self = useGetMe();
   const params = useParams();
   const roomName = params.id;
-  const { sendOffer } = useOfferSending(peerConnection);
+  const peerRef = useRef<Peer.Instance>();
 
-  const { handleConnectionOffer } = useSendingAnswer(peerConnection);
+  const { sendOffer } = useOfferSending(peerRef, localVideoRef, remoteVideoRef);
 
-  const { handleOfferAnswer } = useAnswerProcessing(peerConnection);
+  const { handleConnectionOffer } = useSendingAnswer(peerRef, localVideoRef, remoteVideoRef);
+
+  const { handleOfferAnswer } = useAnswerProcessing(peerRef);
 
   const handleConnection = useCallback(() => {
     if (roomName && self?.data?.username) {
-      console.log("NGUOI GOI LA TOI", self.data.username);
       socket?.emit(SOCKET_EVENTS.CLIENT.JOIN_ROOM, {
         roomName,
         userName: self.data.username,
       });
     }
   }, [roomName, self?.data?.username, socket]);
-
-  const handleReceiveCandidate = useCallback(
-    ({ candidate }: { candidate: RTCIceCandidate }) => {
-      peerConnection.addIceCandidate(candidate);
-    },
-    [peerConnection],
-  );
 
   useEffect(() => {
     socket?.connect();
@@ -44,7 +40,6 @@ export function useChatConnection(peerConnection: RTCPeerConnection) {
       handleConnectionOffer,
     );
     socket?.on(SOCKET_EVENTS.SERVER.ANSWER, handleOfferAnswer);
-    socket?.on(SOCKET_EVENTS.SERVER.SEND_CANDIDATE, handleReceiveCandidate);
     // xu li end call
     //socket?.on(SOCKET_EVENTS.SERVER.ANOTHER_PERSON_DECLINE, {});
     return () => {
@@ -55,16 +50,7 @@ export function useChatConnection(peerConnection: RTCPeerConnection) {
         handleConnectionOffer,
       );
       socket?.off(SOCKET_EVENTS.SERVER.ANSWER, handleOfferAnswer);
-      socket?.off(SOCKET_EVENTS.SERVER.SEND_CANDIDATE, handleReceiveCandidate);
       //socket?.off(SOCKET_EVENTS.SERVER.ANOTHER_PERSON_DECLINE, {});
     };
-  }, [
-    roomName,
-    handleConnection,
-    socket,
-    sendOffer,
-    handleConnectionOffer,
-    handleOfferAnswer,
-    handleReceiveCandidate,
-  ]);
+  }, [roomName, handleConnection, socket, sendOffer, handleConnectionOffer, handleOfferAnswer]);
 }

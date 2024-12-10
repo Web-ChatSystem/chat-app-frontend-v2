@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { notifications } from "@mantine/notifications";
 
 const CORE_API = import.meta.env.VITE_PUBLIC_API_BASE_URL;
+export const CORE_WEB_SOCKET = import.meta.env.VITE_PUBLIC_WEB_SOCKET;
 
 axios.defaults.headers.common["Accept"] = "application/json";
 
