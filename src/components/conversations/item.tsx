@@ -28,7 +28,7 @@ export const ConversationItem = (props: { conversation: ConversationItem }) => {
   )?.user;
 
   if (!friend) return null;
-  console.log("FRIEND", friend, conversation.creatorID);
+  //console.log("FRIEND", friend, conversation.creatorID);
   const isIndividual = conversation.type === "individual";
 
   return (

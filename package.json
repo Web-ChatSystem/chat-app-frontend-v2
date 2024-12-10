@@ -32,6 +32,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.16.0",
+    "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.2",
     "vite-tsconfig-paths": "4.2.1"
   },
@@ -39,16 +40,22 @@
     "@tanstack/eslint-plugin-query": "^4.36.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/simple-peer": "^9.11.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "events": "^3.3.0",
+    "global": "^4.4.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
     "prettier": "3.0.3",
+    "process": "^0.11.10",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vite-compatible-readable-stream": "^3.6.1",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }

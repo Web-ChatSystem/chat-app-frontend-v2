@@ -4,6 +4,7 @@ import {
   Modal,
   Navbar,
   NavbarProps,
+  PasswordInput,
   Stack,
   Tabs,
   Text,
@@ -19,7 +20,7 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { TabStyles } from "@/components/shell/styles.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContactList } from "@/components/contacts/list.tsx";
 import { useGetMe } from "@/server/hooks/useGetMe.ts";
 import { Loader } from "@/components/loader";
@@ -28,6 +29,7 @@ import { ConversationList } from "@/components/conversations/list.tsx";
 import { useListFriends } from "@/server/hooks/useListFriends";
 import { Friend } from "../contacts/item";
 import { useCreateConversation } from "@/server/hooks/useCreateConversation";
+import { useGetUserDetail } from "@/server/hooks/useGetUserDetail";
 
 interface Props {
   hidden: Required<NavbarProps>["hidden"];
@@ -42,8 +44,49 @@ export const ShellNav = (props: Props): JSX.Element => {
   const [selectedUsers, setSelectedUsers] = useState<Friend[]>([]);
   const [groupName, setGroupName] = useState<string>("");
   const createConversation = useCreateConversation(); // Hook tạo nhóm
+  const [openSettingsModal, setOpenSettingsModal] = useState(false);
 
+  const [formData, setFormData] = useState({
+    name: "",
+    avatar: "",
+    email: "",
+    username: "",
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+      alert("Mật khẩu mới và xác nhận không khớp!");
+      return;
+    }
+
+    // Thực hiện API call để cập nhật thông tin người dùng
+    console.log("Submitting form data:", formData);
+
+    // Sau khi cập nhật thành công, đóng modal
+    setOpenSettingsModal(false);
+  };
   const self = useGetMe();
+  const realname = useGetUserDetail(self?.data?.userId);
+  useEffect(() => {
+    if (self.isSuccess) {
+      setFormData({
+        name: realname?.data?.name || "",
+        avatar: self.data.avatar || "",
+        email: self.data.email || "",
+        username: self.data.username || "",
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [self]);
   console.log(self?.data?.userId);
   const friendQuery = useListFriends({ userID: self?.data?.userId });
   const friendsList = friendQuery.data?.items;
@@ -95,7 +138,7 @@ export const ShellNav = (props: Props): JSX.Element => {
       <Navbar.Section>
         <Group position="apart">
           <Button
-            p={0}
+            onClick={() => setOpenSettingsModal(true)}
             styles={{
               root: {
                 boxShadow: "none",
@@ -266,6 +309,59 @@ export const ShellNav = (props: Props): JSX.Element => {
         size="lg"
       >
         {self.isSuccess && <FriendRequests userID={self.data.userId} />}
+      </Modal>
+
+      <Modal
+        opened={openSettingsModal}
+        onClose={() => setOpenSettingsModal(false)}
+        title="Cài đặt người dùng"
+        size="lg"
+      >
+        {self.isLoading && <Loader />}
+        {self.isSuccess && (
+          <Stack>
+            <TextInput
+              label="Tên"
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+            />
+            <TextInput
+              label="Avatar (URL)"
+              value={formData.avatar}
+              onChange={(e) => handleInputChange("avatar", e.target.value)}
+            />
+            <TextInput
+              label="Email"
+              value={formData.email}
+              readOnly
+            />
+            <TextInput
+              label="Username"
+              value={formData.username}
+              readOnly
+            />
+            <PasswordInput
+              label="Mật khẩu cũ"
+              value={formData.oldPassword}
+              onChange={(e) => handleInputChange("oldPassword", e.target.value)}
+            />
+            <PasswordInput
+              label="Mật khẩu mới"
+              value={formData.newPassword}
+              onChange={(e) => handleInputChange("newPassword", e.target.value)}
+            />
+            <PasswordInput
+              label="Xác nhận mật khẩu mới"
+              value={formData.confirmPassword}
+              onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+            />
+            <Group position="right">
+              <Button color="blue" onClick={handleSubmit}>
+                Cập nhật
+              </Button>
+            </Group>
+          </Stack>
+        )}
       </Modal>
     </Navbar>
   );

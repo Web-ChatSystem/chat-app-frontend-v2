@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { JSX, useEffect, useState } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import {
   ActionIcon,
   Avatar,
@@ -19,8 +19,6 @@ import {
 import { useSocket } from "@/provider/socketProvider";
 import { SOCKET_EVENTS } from "@/utils/constant";
 import { useChatConnection } from "@/server/hooks/useChatConnection";
-import { usePeerConnection } from "@/server/hooks/usePeerConnection";
-import { useLocalCameraStream } from "@/server/hooks/useLocalCameraStream";
 import { VideoFeed } from "@/components/videocalls/VideoFeed";
 import { useGetMe } from "@/server/hooks/useGetMe";
 
@@ -30,28 +28,25 @@ export default function VideoCallPage(): JSX.Element {
   const self = useGetMe();
   const [isVideoOn, setIsVideoOn] = useState(true); // Track video state
   const [isMicOn, setIsMicOn] = useState(true); // Track microphone state
-
   const [callEnded, setCallEnded] = useState(false);
-  const { localStream } = useLocalCameraStream();
-  const { peerConnection, guestStream, cleanupConnection } =
-    usePeerConnection(localStream);
 
-  useChatConnection(peerConnection);
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  useChatConnection(localVideoRef, remoteVideoRef);
   useEffect(() => {
     if (id && self?.data?.username) {
       socket?.emit(SOCKET_EVENTS.CLIENT.JOIN_ROOM, {
         roomName: id,
-        userName: self.data.username,
+        userName: self?.data?.username,
       });
       socket?.on(SOCKET_EVENTS.SERVER.CALL_ENDED, () => {
         setCallEnded(true);
-        cleanupConnection();
       });
     }
     return () => {
       socket?.off(SOCKET_EVENTS.SERVER.CALL_ENDED);
     };
-  }, [cleanupConnection, id, self?.data?.username, socket]);
+  }, [id, self?.data?.username, socket]);
 
   const hangup = () => {
     if (socket) {
@@ -61,11 +56,11 @@ export default function VideoCallPage(): JSX.Element {
           userName: self.data.username,
         });
     }
-    cleanupConnection();
     window.close();
   };
+
   // Toggle video
-  const toggleVideo = () => {
+  /*const toggleVideo = () => {
     if (localStream) {
       const videoTrack = localStream
         .getTracks()
@@ -88,9 +83,7 @@ export default function VideoCallPage(): JSX.Element {
         setIsMicOn(!isMicOn);
       }
     }
-  };
-
-  console.log("GuestStream", guestStream);
+  };*/
   if (!id) {
     return <>No id</>;
   }
@@ -141,28 +134,16 @@ export default function VideoCallPage(): JSX.Element {
       <Grid style={{ height: "calc(100vh - 160px)" }}>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
-            {localStream ? (
-              <VideoFeed mediaStream={localStream} isMuted={true} />
-            ) : (
-              <Avatar
-                size={120}
-                radius="50%"
-                src="/placeholder.svg?height=120&width=120"
-              />
-            )}
+
+            <VideoFeed ref={localVideoRef} isMuted={true} />
+
           </Stack>
         </Grid.Col>
         <Grid.Col span={6}>
           <Stack align="center" justify="center" style={{ height: "100%" }}>
-            {guestStream ? (
-              <VideoFeed mediaStream={guestStream} isMuted={true} />
-            ) : (
-              <Avatar
-                size={120}
-                radius="50%"
-                src="/placeholder.svg?height=120&width=120"
-              />
-            )}
+
+            <VideoFeed ref={remoteVideoRef} isMuted={true} />
+
           </Stack>
         </Grid.Col>
       </Grid>
@@ -178,7 +159,7 @@ export default function VideoCallPage(): JSX.Element {
           radius="xl"
           variant="filled"
           color="dark.4"
-          onClick={toggleVideo}
+        //onClick={toggleVideo}
         >
           {isVideoOn ? <IconVideo size={24} /> : <IconVideoOff size={24} />}
         </ActionIcon>
@@ -187,7 +168,7 @@ export default function VideoCallPage(): JSX.Element {
           radius="xl"
           variant="filled"
           color="dark.4"
-          onClick={toggleMic}
+        //onClick={toggleMic}
         >
           {isMicOn ? (
             <IconMicrophone size={24} />
