@@ -57,7 +57,6 @@ export const MessageHeader = (props: {
   let friendId = friend?.id;
   if (friendId == undefined) friendId = "";
   const friendDetail = useGetUserDetail(friendId);
-  console.log("DETAIL", friendId, friendDetail.data);
 
   const [openedSetNicknameModal, { toggle: toggleSetNicknameModal }] =
     useDisclosure();
